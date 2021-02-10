@@ -1,0 +1,54 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Fmt
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -input=false -no-color > plan.txt
+        env:
+          TF_VAR_GITHUB_TOKEN: ${{ secrets.ADD_RUNNER_GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Save plan as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: terraform-plan
+          path: plan.txt
+
+      - name: Terraform Plan Status
+        run: exit 1
+        if: steps.plan.outcome == 'failure'
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        if: github.ref == 'refs/heads/main'
+        env:
+          TF_VAR_GITHUB_TOKEN: ${{ secrets.ADD_RUNNER_GITHUB_TOKEN }}

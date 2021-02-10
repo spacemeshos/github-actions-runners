@@ -18,14 +18,19 @@ resource "google_secret_manager_secret_version" "default" {
   secret_data = <<-EOT
   REPO_NAME=go-spacemesh
   REPO_OWNER=spacemeshos
-  GITHUB_TOKEN=${var.github_token}
+  GITHUB_TOKEN=${var.GITHUB_TOKEN}
   REPO_URL=https://github.com/spacemeshos/go-spacemesh
   EOT
 }
 
-resource "google_service_account" "default" {
+resource "google_service_account" "runner" {
   account_id   = "gha-runner"
-  display_name = "A service account for GitHub Actions runners"
+  display_name = "Service account for runner"
+}
+
+resource "google_service_account" "github_actions" {
+  account_id   = "github-actions"
+  display_name = "Service account for GitHub Actions"
 }
 
 resource "google_secret_manager_secret_iam_binding" "default" {
@@ -33,7 +38,8 @@ resource "google_secret_manager_secret_iam_binding" "default" {
   secret_id = google_secret_manager_secret.default.secret_id
   role      = "roles/secretmanager.secretAccessor"
   members = [
-    "serviceAccount:${google_service_account.default.email}",
+    "serviceAccount:${google_service_account.runner.email}",
+    "serviceAccount:${google_service_account.github_actions.email}"
   ]
 }
 
@@ -43,7 +49,7 @@ resource "google_compute_instance_template" "default" {
   machine_type = var.instance_type
 
   service_account {
-    email  = google_service_account.default.email
+    email  = google_service_account.runner.email
     scopes = ["cloud-platform"]
   }
   metadata = {
