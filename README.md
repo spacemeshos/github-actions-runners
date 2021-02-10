@@ -33,4 +33,5 @@ terraform apply
 
 In this repository there is no need to run terraform manually and configure
 variables. All variables are stored in Secrets. To make changes to the
-infrastructure, just create a Pull Request and you can see `plan` at "Details" of the check, then "Artifacts".
+infrastructure, just create a Pull Request and you can see `terraform-plan` at
+"Details" of the check, then "Artifacts".
