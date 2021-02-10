@@ -18,7 +18,7 @@ resource "google_secret_manager_secret_version" "default" {
   secret_data = <<-EOT
   REPO_NAME=go-spacemesh
   REPO_OWNER=spacemeshos
-  GITHUB_TOKEN=${var.github_token}
+  GITHUB_TOKEN=${var.GITHUB_TOKEN}
   REPO_URL=https://github.com/spacemeshos/go-spacemesh
   EOT
 }
