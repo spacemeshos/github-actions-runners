@@ -1,7 +1,7 @@
 # Self-hosted GitHub Actions runner
 
 Self-hosted runners can process GitHub Actions jobs on dedicated servers. In
-our case, we have Manager Instance Group on `Google Cloud`. Number of instances
+our case, we have Managed Instance Group on Google Cloud. Number of instances
 in group controlled by AutoScaler.
 
 All necessary parts are created with `terraform`. To use it we have to do some 
@@ -33,5 +33,4 @@ terraform apply
 
 In this repository there is no need to run terraform manually and configure
 variables. All variables are stored in Secrets. To make changes to the
-infrastructure, just create a Pull Request and you can see `plan` check details,
-artifacts.
+infrastructure, just create a Pull Request and you can see `plan` at "Details" of the check, then "Artifacts".
